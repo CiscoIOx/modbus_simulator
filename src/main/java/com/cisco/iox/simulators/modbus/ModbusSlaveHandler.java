@@ -113,6 +113,14 @@ public class ModbusSlaveHandler extends ModbusRequestHandler {
 					this.addReg(addrAndCount[0]+1, ((bytes[2] << 8) | (bytes[3] & 0xff)));
 					this.addReg(addrAndCount[0]+2, ((bytes[4] << 8) | (bytes[5] & 0xff)));
 					this.addReg(addrAndCount[0]+3, ((bytes[6] << 8) | (bytes[7] & 0xff)));
+				} else if (this.types[index].equalsIgnoreCase("string")) {
+					byte[] bytes = regVals[index++].getBytes();
+					for (int i=0; i<bytes.length; i++) {
+						this.addReg(addrAndCount[0]+i, ((0x00 << 8) | (bytes[i] & 0xff)));
+					}
+					for (int i=bytes.length; i<addrAndCount[1]; i++) {
+						this.addReg(addrAndCount[0]+i, 0x0000);
+					}
 				}
 
 			} else {
@@ -182,13 +190,20 @@ public class ModbusSlaveHandler extends ModbusRequestHandler {
 	@Override
 	protected ReadHoldingRegistersResponse readHoldingRegistersRequest(ReadHoldingRegistersRequest arg0) {
 		System.out.println(
-				"Got a request for " + arg0.getStartingAddress() + " and count " + arg0.getQuantityOfInputRegisters());
-		this.checkAndLoadRegisters();
+				"<ChivukS> Got a request for " + arg0.getStartingAddress() + " and count " + arg0.getQuantityOfInputRegisters());
 		int[] registers = new int[arg0.getQuantityOfInputRegisters()];
-		for (int i = 0; i < arg0.getQuantityOfInputRegisters(); i++) {
-			registers[i] = this.getReg(40001 + arg0.getStartingAddress() + i);
+		try {
+			this.checkAndLoadRegisters();
+
+			for (int i = 0; i < arg0.getQuantityOfInputRegisters(); i++) {
+				registers[i] = this.getReg(40001 + arg0.getStartingAddress() + i);
+			}
+			return new ReadHoldingRegistersResponse(registers);
+		} catch (Throwable t) {
+			t.printStackTrace();
+			return new ReadHoldingRegistersResponse(registers);
 		}
-		return new ReadHoldingRegistersResponse(registers);
+		
 	}
 
 	@Override

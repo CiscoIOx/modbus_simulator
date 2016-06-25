@@ -3,6 +3,11 @@ Simulator for testing Modbus Protocol handler functionality
 
 You can use this simulator to send varieties of data that conforms to the data models provisioned on the IOx services gateway.
 
+## Sorting Station simulator ##
+
+To run the sorting station simulator, go to bin directory and run
+"java -jar <jar file> "0.0.0.0" 502"
+
 ## Building and packaging the simulator ##
 
 Developers who want to use the simulator need to have maven environment to compile and package the simulator.
